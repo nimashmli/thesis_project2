@@ -40,7 +40,19 @@ def parse_args():
     )
     args = parser.parse_args()
 
-    # load config if provided
+    # اگر run_dir داده شده، ابتدا config.json از آن پوشه را بخوان
+    if args.run_dir:
+        run_config_path = os.path.join(args.run_dir, "config.json")
+        if os.path.exists(run_config_path):
+            with open(run_config_path, "r", encoding="utf-8") as f:
+                run_cfg = json.load(f)
+            for key, val in run_cfg.items():
+                if hasattr(args, key):
+                    cur = getattr(args, key)
+                    if cur is None or cur == parser.get_default(key):
+                        setattr(args, key, val)
+
+    # load config if provided (این می‌تواند override کند)
     if args.config:
         with open(args.config, "r", encoding="utf-8") as f:
             cfg = json.load(f)
